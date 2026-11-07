@@ -5,7 +5,8 @@ name: ci-rq-envios
 on:
   push:
     branches: [main]
-  # TODO 1: ejecuta también el pipeline en cada pull request hacia main.
+  pull_request: 
+    {branches: [main]}
 
 jobs:
   pruebas:
@@ -23,18 +24,27 @@ jobs:
       - name: Instalar dependencias
         run: pip install -r requirements-dev.txt
 
-      # TODO 2: ejecuta pytest generando reportes/junit.xml y reportes/cobertura.xml
-      #         y haz que el job falle si la cobertura es menor que 80 %.
+      - name: Ejecutar pruebas con cobertura (quality gate 80 %)
+        run: >
+          pytest --junitxml=reportes/junit.xml
+          --cov=app --cov-report=xml:reportes/cobertura.xml
+          --cov-fail-under=80
+      
       - name: Ejecutar pruebas
         run: pytest
 
-      # TODO 3: publica la carpeta reportes/ como artefacto "evidencias-pruebas"
-      #         incluso si las pruebas fallan (pista: if: always()).
+      - name: Publicar evidencias
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: evidencias-pruebas
+          path: reportes/
 
   desplegar-staging:
     name: Despliegue simulado a staging
     runs-on: ubuntu-latest
-    # Encuentra el defecto: ¿qué falta para que este job espere a las pruebas?
+    needs: pruebas
+    if: github.event_name == 'push'
     steps:
       - name: Simular despliegue
         run: echo "Despliegue simulado de ${{ github.sha }} a staging (sin servidor real)."
