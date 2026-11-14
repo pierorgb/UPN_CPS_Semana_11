@@ -13,6 +13,9 @@ COPY requirements.txt requirements-dev.txt ./
 RUN pip install --no-cache-dir -r requirements-dev.txt
 
 # TODO 4: copia las carpetas app y tests, y el archivo pytest.ini.
+COPY app/ ./app/
+COPY tests/ ./tests/
+COPY pytest.ini ./
 
 # Usuario sin privilegios (buena práctica de seguridad).
 RUN useradd --create-home probador && mkdir -p /app/reportes && chown -R probador /app

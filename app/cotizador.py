@@ -60,7 +60,7 @@ def tarifa_base(peso_kg):
         raise CotizacionInvalida("El peso debe estar entre 0.1 kg y 20 kg.")
     if peso <= Decimal("1"):
         return TARIFA_HASTA_1_KG
-    if peso < Decimal("5"):
+    if peso <= Decimal("5"):
         return TARIFA_HASTA_5_KG
     return TARIFA_HASTA_20_KG
 
@@ -78,6 +78,6 @@ def cotizar(peso_kg, destino, servicio="estandar", fragil=False):
         total = total * (Decimal("1") + RECARGO_EXPRESS)
     if fragil:
         total += RECARGO_FRAGIL
-    if destino in DESTINOS_SELVA_CENTRAL:
+    if zona in DESTINOS_SELVA_CENTRAL:
         total += RECARGO_SELVA
     return total.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
